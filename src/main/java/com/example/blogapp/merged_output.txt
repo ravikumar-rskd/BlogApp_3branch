@@ -3,50 +3,67 @@ package com.example.blogapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class BlogappApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(BlogappApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        Dotenv dotenv = Dotenv.load();
+        System.setProperty("DB_URL", dotenv.get("DB_URL"));
+        System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
+        System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
+        SpringApplication.run(BlogappApplication.class, args);
+    }
 }
 
 
 Contents of ./controllers\PostController.java:
 package com.example.blogapp.controllers;
 
-import java.util.List;
 import com.example.blogapp.models.Post;
 import com.example.blogapp.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
+    
     @Autowired
     private PostService postService;
 
     @PostMapping
-    public Post createPost(@RequestBody Post post) {
-        return postService.createPost(post);
-    }
-
-    @PutMapping("/{postId}/approve")
-    public void approvePost(@PathVariable int postId) {
-        postService.approvePost(postId);
+    public Post createPost(@RequestBody PostRequest postRequest) {
+        return postService.createPost(postRequest.getTitle(), postRequest.getContent(), postRequest.getUserId());
     }
 
     @GetMapping
     public ResponseEntity<List<Post>> getAllPosts() {
         List<Post> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
+    }
 
-    // Other endpoints for post management
+    @PutMapping("/{postId}/approve")
+    public void approvePost(@PathVariable int postId) {
+        postService.approvePost(postId);
+    }
 }
+
+class PostRequest {
+    private String title;
+    private String content;
+    private int userId;
+
+    // Getters and setters
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
 }
 
 Contents of ./controllers\UserController.java:
@@ -57,9 +74,12 @@ import com.example.blogapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    
     @Autowired
     private UserService userService;
 
@@ -68,7 +88,10 @@ public class UserController {
         return userService.createUser(user);
     }
 
-    // Other endpoints for user management
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
 }
 
 Contents of ./models\Post.java:
@@ -90,48 +113,17 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public int getPostId() {
-        return postId;
-    }
-
-    public void setPostId(int postId) {
-        this.postId = postId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public boolean isApproved() {
-        return approved;
-    }
-
-    public void setApproved(boolean approved) {
-        this.approved = approved;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    // Constructors, getters, and setters
-    
+    // Getters and setters
+    public int getPostId() { return postId; }
+    public void setPostId(int postId) { this.postId = postId; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+    public boolean isApproved() { return approved; }
+    public void setApproved(boolean approved) { this.approved = approved; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }
 
 Contents of ./models\User.java:
@@ -147,27 +139,14 @@ public class User {
     private int userId;
     private String username;
     private String email;
-    public int getUserId() {
-        return userId;
-    }
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-    public String getUsername() {
-        return username;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
-   
-    
+    // Getters and setters
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }
 
 Contents of ./repositories\PostRepository.java:
@@ -191,8 +170,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 Contents of ./services\PostService.java:
 package com.example.blogapp.services;
 
-import java.util.List;
-
 import com.example.blogapp.models.Post;
 import com.example.blogapp.models.User;
 import com.example.blogapp.repositories.PostRepository;
@@ -200,34 +177,40 @@ import com.example.blogapp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PostService {
+    
     @Autowired
     private PostRepository postRepository;
-
+    
     @Autowired
     private UserRepository userRepository;
 
-    public Post createPost(Post post) {
-        if (post.getUser() != null && post.getUser().getUserId() != 0) {
-            User user = userRepository.findById(post.getUser().getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            post.setUser(user);
-        }
+    public Post createPost(String title, String content, int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        Post post = new Post();
+        post.setTitle(title);
+        post.setContent(content);
+        post.setUser(user);
+        post.setApproved(false);
+        
         return postRepository.save(post);
-    }
-
-    public void approvePost(int postId) {
-        Post post = postRepository.findById(postId).orElseThrow();
-        post.setApproved(true);
-        postRepository.save(post);
     }
 
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
 
-    // Other methods for post management
+    public void approvePost(int postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        post.setApproved(true);
+        postRepository.save(post);
+    }
 }
 
 Contents of ./services\UserService.java:
@@ -235,20 +218,23 @@ package com.example.blogapp.services;
 
 import com.example.blogapp.models.User;
 import com.example.blogapp.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    
+    @Autowired
+    private UserRepository userRepository;
 
     public User createUser(User user) {
         return userRepository.save(user);
     }
 
-    // Other methods for user management
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }
 
