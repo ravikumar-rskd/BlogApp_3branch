@@ -5,9 +5,12 @@ import com.example.blogapp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    
     @Autowired
     private UserService userService;
 
@@ -16,5 +19,8 @@ public class UserController {
         return userService.createUser(user);
     }
 
-    // Other endpoints for user management
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
 }
