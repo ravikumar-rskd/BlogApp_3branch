@@ -12,9 +12,6 @@ buildNumber.properties
 .gradle/
 build/
 !gradle-wrapper.jar
-.gradle
-build/
-!gradle-wrapper.jar
 
 # Eclipse specific files
 .classpath
@@ -76,7 +73,6 @@ logs/
 .env
 
 # Application specific files
-src/main/resources/application.properties
 src/main/resources/application.yml
 src/main/resources/application-*.properties
 src/main/resources/application-*.yml
@@ -92,5 +88,3 @@ src/main/resources/application-*.yml
 .idea/*
 *.iml
 *.ipr
-
-src/main/resources/application.properties
