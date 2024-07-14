@@ -76,6 +76,8 @@ logs/
 src/main/resources/application.yml
 src/main/resources/application-*.properties
 src/main/resources/application-*.yml
+**/target/
+**/out/
 
 # Generated files
 *.class
