@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/posts")
 public class PostController {
     @Autowired
@@ -19,7 +20,7 @@ public class PostController {
     }
 
     @PutMapping("/{postId}/approve")
-    public void approvePost(@PathVariable int postId) {
+    public void approvePost(@PathVariable String postId) {
         postService.approvePost(postId);
     }
 
