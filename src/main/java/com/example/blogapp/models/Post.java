@@ -1,13 +1,17 @@
 package com.example.blogapp.models;
 
 import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "posts")
+// @Entity
+// @Table(name = "posts")
+@Document(collection = "blogposts")
 public class Post {
+    
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int postId;
+    private String postId;
     private String title;
     private String content;
     private boolean approved;
@@ -16,11 +20,11 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public int getPostId() {
+    public String getPostId() {
         return postId;
     }
 
-    public void setPostId(int postId) {
+    public void setPostId(String postId) {
         this.postId = postId;
     }
 

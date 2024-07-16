@@ -1,19 +1,25 @@
 package com.example.blogapp.models;
 
-import javax.persistence.*;
 
-@Entity
-@Table(name = "users")
+// import javax.persistence.*;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+// @Entity
+// @Table(name = "users")
+@Document(collection = "blogusers")
 public class User {
+    
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+    private String userId;
     private String username;
     private String email;
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
     public String getUsername() {
