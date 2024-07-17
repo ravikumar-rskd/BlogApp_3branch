@@ -18,7 +18,7 @@ public class PostService {
     private UserRepository userRepository;
 
     public Post createPost(Post post) {
-        if (post.getUser() != null && post.getUser().getUserId() != null) {
+        if (post.getUser() != null && post.getUser().getUserId() != 0) {
             User user = userRepository.findById(post.getUser().getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             post.setUser(user);
@@ -26,7 +26,7 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public void approvePost(String postId) {
+    public void approvePost(int postId) {
         Post post = postRepository.findById(postId).orElseThrow();
         post.setApproved(true);
         postRepository.save(post);

@@ -1,25 +1,25 @@
 package com.example.blogapp.models;
 
 
-// import javax.persistence.*;
+import javax.persistence.*;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+//import org.springframework.data.annotation.Id;
 
-// @Entity
-// @Table(name = "users")
-@Document(collection = "blogusers")
+//import org.springframework.data.mongodb.core.mapping.Document;
+
+@Entity
+@Table(name = "users")
 public class User {
-    
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+ 
+    private int userId;
     private String username;
     private String email;
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
-    public void setUserId(String userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
     public String getUsername() {
@@ -36,5 +36,4 @@ public class User {
     }
 
    
-    
 }

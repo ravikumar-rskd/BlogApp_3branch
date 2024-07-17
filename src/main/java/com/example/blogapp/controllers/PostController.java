@@ -20,7 +20,7 @@ public class PostController {
     }
 
     @PutMapping("/{postId}/approve")
-    public void approvePost(@PathVariable String postId) {
+    public void approvePost(@PathVariable int postId) {
         postService.approvePost(postId);
     }
 
